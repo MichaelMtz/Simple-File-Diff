@@ -3,6 +3,9 @@
 A spartan‑yet‑elegant, local **side‑by‑side file & folder diff** desktop app, built with
 Electron and vanilla JS (no bundler, no build step).
 
+> **Platform:** macOS on Apple Silicon (arm64). The prebuilt `.dmg` won't run on Intel
+> Macs — see [Package into a Mac app](#package-into-a-mac-app-dmg) for Intel/universal builds.
+
 ![file diff](samples/diff-screenshot.png)
 
 ## Features
@@ -85,6 +88,12 @@ dist/mac-arm64/FileDiff.app       # the app bundle itself
 Open the `.dmg`, drag **FileDiff** into **Applications**, and launch it from Spotlight or
 Launchpad like any other Mac app. The app uses the custom icon in `assets/icon.icns`
 (generated from `assets/icon.svg`).
+
+> **Apple Silicon (arm64) only.** The prebuilt `dist/FileDiff-1.0.0-arm64.dmg` runs
+> natively on Apple Silicon Macs (M1/M2/M3/M4) and will **not** run on older Intel Macs.
+> For an Intel build run `electron-builder --mac --x64`; for a single dmg that runs on
+> both architectures use `--universal` (larger file). The dmg is also unsigned, so it
+> carries no notarization — fine for local/personal use.
 
 > **First launch — "unidentified developer".** The build is unsigned (ad-hoc), so the
 > first time you open it macOS will warn. Right-click the app → **Open** → **Open** once,
