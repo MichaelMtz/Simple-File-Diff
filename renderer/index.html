@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>FileDiff</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ── Title bar ─────────────────────────────────────────────── -->
+  <header class="titlebar">
+    <div class="brand">
+      <span class="brand-mark">◧◨</span>
+      <span class="brand-name">File<b>Diff</b></span>
+    </div>
+    <div class="mode-switch" role="tablist" aria-label="Compare mode">
+      <button id="modeFile" class="mode-btn is-active" role="tab">Files</button>
+      <button id="modeFolder" class="mode-btn" role="tab">Folders</button>
+    </div>
+    <div class="titlebar-spacer"></div>
+  </header>
+
+  <!-- ── Toolbar ───────────────────────────────────────────────── -->
+  <div class="toolbar">
+    <div class="slot" id="slotLeft" data-side="left">
+      <span class="slot-tag">Left</span>
+      <span class="slot-name" id="nameLeft">Drop a file or browse…</span>
+      <button class="slot-browse" id="browseLeft">Browse</button>
+    </div>
+
+    <div class="toolbar-mid">
+      <button class="icon-btn" id="swapBtn" title="Swap sides">⇄</button>
+    </div>
+
+    <div class="slot" id="slotRight" data-side="right">
+      <span class="slot-tag">Right</span>
+      <span class="slot-name" id="nameRight">Drop a file or browse…</span>
+      <button class="slot-browse" id="browseRight">Browse</button>
+    </div>
+
+    <div class="toolbar-actions">
+      <label class="check" title="Ignore whitespace-only changes">
+        <input type="checkbox" id="ignoreWs" /> <span>Ignore WS</span>
+      </label>
+      <button class="icon-btn" id="reloadBtn" title="Reload both">⟳</button>
+      <span class="nav-group" id="navGroup">
+        <button class="icon-btn" id="prevBtn" title="Previous change">↑</button>
+        <button class="icon-btn" id="nextBtn" title="Next change">↓</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── File diff view ────────────────────────────────────────── -->
+  <main id="fileView" class="view">
+    <div class="diff" id="diff">
+      <section class="pane" id="paneLeft">
+        <div class="pane-head" id="headLeft">Left</div>
+        <div class="pane-body" id="bodyLeft"></div>
+      </section>
+      <div class="pane-divider"></div>
+      <section class="pane" id="paneRight">
+        <div class="pane-head" id="headRight">Right</div>
+        <div class="pane-body" id="bodyRight"></div>
+      </section>
+    </div>
+    <div class="empty" id="emptyState">
+      <div class="empty-art">◧&nbsp;◨</div>
+      <p class="empty-title">Nothing to compare yet</p>
+      <p class="empty-sub">Pick a file on the left and the right — or drag two files in.</p>
+    </div>
+  </main>
+
+  <!-- ── Folder diff view ──────────────────────────────────────── -->
+  <main id="folderView" class="view is-hidden">
+    <div class="folder-head" id="folderHead">
+      Choose two folders to compare their contents recursively.
+    </div>
+    <div class="folder-tree" id="folderTree"></div>
+  </main>
+
+  <!-- ── Footer stat bar ───────────────────────────────────────── -->
+  <footer class="statbar" id="statbar">
+    <span class="stat" id="statReady">Ready</span>
+    <div class="statbar-spacer"></div>
+    <span class="stat stat-add"><i></i> <b id="statAdded">0</b> inserted</span>
+    <span class="stat stat-del"><i></i> <b id="statRemoved">0</b> removed</span>
+    <span class="stat stat-chg"><i></i> <b id="statChanged">0</b> changed</span>
+    <span class="stat stat-eq"><i></i> <b id="statSame">0</b> unchanged</span>
+  </footer>
+
+  <!-- jsdiff UMD bundle exposes a global `Diff` -->
+  <script src="vendor/diff.js"></script>
+  <script src="diff-view.js"></script>
+  <script src="folder-view.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

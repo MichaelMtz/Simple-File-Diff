@@ -1,0 +1,42 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#f1ece3"/>
+    </linearGradient>
+    <filter id="cardA" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#5a463c" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- squircle -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bgA)" stroke="#e4ddd1" stroke-width="3"/>
+
+  <g filter="url(#cardA)">
+    <rect x="196" y="244" width="288" height="536" rx="30" fill="#ffffff" stroke="#d6cdbd" stroke-width="3"/>
+    <rect x="540" y="244" width="288" height="536" rx="30" fill="#ffffff" stroke="#d6cdbd" stroke-width="3"/>
+  </g>
+
+  <!-- LEFT pane rows -->
+  <rect x="196" y="300" width="288" height="66" fill="#f7ece9"/>
+  <rect x="236" y="324" width="150" height="18" rx="9" fill="#9a3f2f"/>
+  <rect x="236" y="404" width="196" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="236" y="476" width="120" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="196" y="540" width="288" height="66" fill="#f7ece9"/>
+  <rect x="236" y="564" width="168" height="18" rx="9" fill="#9a3f2f"/>
+  <rect x="236" y="644" width="140" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="236" y="716" width="180" height="18" rx="9" fill="#cfc6b8"/>
+
+  <!-- RIGHT pane rows -->
+  <rect x="540" y="300" width="288" height="66" fill="#eaf3ec"/>
+  <rect x="580" y="324" width="186" height="18" rx="9" fill="#2f6b46"/>
+  <rect x="580" y="404" width="196" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="580" y="476" width="120" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="540" y="540" width="288" height="66" fill="#eaf3ec"/>
+  <rect x="580" y="564" width="120" height="18" rx="9" fill="#2f6b46"/>
+  <rect x="580" y="644" width="140" height="18" rx="9" fill="#cfc6b8"/>
+  <rect x="580" y="716" width="180" height="18" rx="9" fill="#cfc6b8"/>
+
+  <!-- center divider -->
+  <rect x="498" y="244" width="28" height="536" rx="14" fill="#b05a4a"/>
+</svg>

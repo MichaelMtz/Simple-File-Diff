@@ -1,0 +1,43 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#f1ece3"/>
+    </linearGradient>
+    <clipPath id="sqB"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+    <filter id="barB" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#5a463c" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bgB)"/>
+
+  <!-- tinted halves -->
+  <g clip-path="url(#sqB)">
+    <rect x="100" y="100" width="412" height="824" fill="#f7ece9"/>
+    <rect x="512" y="100" width="412" height="824" fill="#eaf3ec"/>
+  </g>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="none" stroke="#e4ddd1" stroke-width="3"/>
+
+  <!-- white diff bars, offset to imply difference -->
+  <g filter="url(#barB)">
+    <!-- row 1: aligned -->
+    <rect x="214" y="318" width="220" height="48" rx="24" fill="#ffffff"/>
+    <rect x="590" y="318" width="220" height="48" rx="24" fill="#ffffff"/>
+    <!-- row 2: different lengths (the change) -->
+    <rect x="214" y="430" width="150" height="48" rx="24" fill="#ffffff"/>
+    <rect x="590" y="430" width="220" height="48" rx="24" fill="#ffffff"/>
+    <!-- row 3: aligned -->
+    <rect x="214" y="542" width="180" height="48" rx="24" fill="#ffffff"/>
+    <rect x="590" y="542" width="180" height="48" rx="24" fill="#ffffff"/>
+    <!-- row 4: only on the right (insert) -->
+    <rect x="590" y="654" width="160" height="48" rx="24" fill="#ffffff"/>
+  </g>
+
+  <!-- small status dots -->
+  <circle cx="438" cy="454" r="13" fill="#9a3f2f"/>
+  <circle cx="566" cy="678" r="13" fill="#2f6b46"/>
+
+  <!-- bold center seam -->
+  <rect x="494" y="220" width="36" height="584" rx="18" fill="#b05a4a"/>
+</svg>

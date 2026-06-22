@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FileDiff — Project Concept &amp; Architecture</title>
+<style>
+  :root {
+    --paper: #faf8f4;
+    --paper-2: #f3efe8;
+    --card: #ffffff;
+    --ink: #2c2a27;
+    --ink-soft: #57534c;
+    --muted: #8a847a;
+    --line: #e4ddd1;
+    --line-strong: #d6cdbd;
+    --accent: #b05a4a;
+    --accent-ink: #8a3f33;
+    --accent-wash: #f5ece8;
+    --code-bg: #2b2a28;
+    --code-text: #f2ede3;
+    --add-bg: #eaf3ec; --add-bg-strong: #cfe6d6; --add-ink: #2f6b46;
+    --del-bg: #f7ece9; --del-bg-strong: #f0d3cc; --del-ink: #9a3f2f;
+    --chg-bg: #faf3e6; --chg-bg-strong: #f0e0c0; --chg-ink: #8a5a1a;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); line-height: 1.65; font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 26px 110px; }
+
+  header.mast {
+    background:
+      radial-gradient(1200px 300px at 80% -50%, rgba(176,90,74,.10), transparent),
+      linear-gradient(180deg, #fffefb 0%, var(--paper) 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  header.mast .inner { max-width: 1020px; margin: 0 auto; padding: 54px 26px 40px; }
+  .kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 16px;
+  }
+  header.mast h1 { font-family: var(--serif); font-size: 44px; line-height: 1.05; margin: 0 0 12px; letter-spacing: -.01em; }
+  header.mast h1 b { color: var(--accent); font-weight: 700; }
+  header.mast .lede { font-size: 18px; color: var(--ink-soft); max-width: 70ch; margin: 0; }
+  .factbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .factbar span {
+    font-family: var(--mono); font-size: 12.5px; background: var(--card); border: 1px solid var(--line-strong);
+    border-radius: 999px; padding: 6px 13px; color: var(--ink-soft);
+  }
+
+  h2 {
+    font-family: var(--serif); font-size: 28px; margin: 56px 0 14px; letter-spacing: -.01em;
+    padding-bottom: 10px; border-bottom: 2px solid var(--line);
+  }
+  h2 .n { color: var(--accent); font-size: 18px; font-family: var(--mono); margin-right: 10px; vertical-align: middle; }
+  h3 { font-size: 17px; margin: 26px 0 6px; }
+  p { margin: 11px 0; }
+  a { color: var(--accent-ink); }
+  strong { color: var(--ink); }
+
+  .lead { font-size: 17px; color: var(--ink-soft); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 1px 2px rgba(44,42,39,.03);
+  }
+  .card h3 { margin-top: 0; }
+  .card.accent { border-left: 4px solid var(--accent); }
+
+  .diagram { background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; padding: 26px 22px; margin: 20px 0; }
+  .arch-row { display: flex; align-items: stretch; justify-content: center; gap: 0; flex-wrap: wrap; }
+  .node {
+    background: var(--card); border: 1.5px solid var(--line-strong); border-radius: 12px;
+    padding: 14px 16px; min-width: 168px; text-align: center;
+  }
+  .node .t { font-weight: 650; font-size: 14.5px; }
+  .node .d { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
+  .node.api { border-color: var(--accent); background: var(--accent-wash); }
+  .arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 14px; color: var(--accent-ink); min-width: 92px; }
+  .arrow .lab { font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 2px; }
+  .arrow .ln { font-size: 20px; line-height: 1; }
+  .arch-down { display: flex; justify-content: center; margin: 6px 0; color: var(--accent-ink); font-size: 20px; }
+  .arch-row.base { margin-top: 4px; gap: 16px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 650; }
+  tbody tr:hover { background: var(--paper-2); }
+  td.mono, td .mono { font-family: var(--mono); font-size: 13px; }
+
+  .badge { font-size: 11px; font-family: var(--mono); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-soft); white-space: nowrap; }
+  .badge.add { background: var(--add-bg); border-color: var(--add-bg-strong); color: var(--add-ink); }
+  .badge.del { background: var(--del-bg); border-color: var(--del-bg-strong); color: var(--del-ink); }
+  .badge.chg { background: var(--chg-bg); border-color: var(--chg-bg-strong); color: var(--chg-ink); }
+
+  code { font-family: var(--mono); font-size: 13.5px; background: var(--paper-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+  pre { background: var(--code-bg); color: var(--code-text); border-radius: 12px; padding: 16px 18px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; margin: 12px 0; }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: 13px; }
+  pre .c { color: #9aa18f; }
+  pre .p { color: #e0b873; }
+
+  .tree { font-family: var(--mono); font-size: 13px; line-height: 1.7; white-space: pre; color: var(--ink-soft); }
+  .tree b { color: var(--ink); font-weight: 600; }
+  .tree i { color: var(--muted); font-style: normal; }
+
+  .toc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; margin: 26px 0; }
+  .toc strong { display:block; margin-bottom: 8px; font-family: var(--serif); font-size: 18px; }
+  .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 34px; }
+  .toc li { margin: 4px 0; break-inside: avoid; }
+
+  .note { background: var(--accent-wash); border: 1px solid #dbc2ba; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin: 14px 0; font-size: 14.5px; }
+  .note.warn { background: #faf1e4; border-color: #ebd7b8; border-left-color: #c98a2b; }
+
+  ul.clean { margin: 8px 0; padding-left: 22px; }
+  ul.clean li { margin: 5px 0; }
+
+  /* mini diff sample */
+  .mini { border: 1px solid var(--line-strong); border-radius: 12px; overflow: hidden; margin: 18px 0; font-family: var(--mono); font-size: 12.5px; }
+  .mini-head { display: flex; }
+  .mini-head div { flex: 1; padding: 6px 12px; background: var(--paper-2); color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+  .mini-head div:first-child { border-right: 1px solid var(--line-strong); }
+  .mini-body { display: flex; }
+  .mini-col { flex: 1; }
+  .mini-col:first-child { border-right: 1px solid var(--line-strong); }
+  .mini-row { display: flex; white-space: pre; }
+  .mini-row .g { width: 34px; text-align: right; padding: 1px 8px 1px 0; color: var(--muted); background: #f5f1ea; border-right: 1px solid var(--line); }
+  .mini-row .t { padding: 1px 10px; }
+  .mini-row.add { background: var(--add-bg); } .mini-row.del { background: var(--del-bg); }
+  .mini-row.chg { background: var(--chg-bg); } .mini-row.fill { background: repeating-linear-gradient(135deg,#f3efe8,#f3efe8 6px,#efe9e0 6px,#efe9e0 12px); }
+  .mini-row mark { border-radius: 3px; padding: 0 1px; }
+  .mini-row.add mark, .mini-row.chg.r mark { background: var(--add-bg-strong); }
+  .mini-row.del mark, .mini-row.chg.l mark { background: var(--del-bg-strong); }
+
+  footer { border-top: 1px solid var(--line); margin-top: 64px; padding-top: 22px; color: var(--muted); font-size: 13.5px; }
+
+  @media (max-width: 760px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .toc ol { columns: 1; }
+    header.mast h1 { font-size: 32px; }
+    .arrow { min-width: 64px; padding: 0 6px; }
+    .node { min-width: 132px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="inner">
+    <div class="kicker">Project Concept · Architecture · Runbook</div>
+    <h1>Desktop App <b>FileDiff</b></h1>
+    <p class="lede">A <strong>spartan yet elegant</strong> side-by-side diff tool for the desktop. Pick two files and see them aligned line for line with color-coded insertions, deletions, and changes — plus word-level highlights inside every modified line. A second mode compares two folders recursively and drills into any changed file. Built on Electron with zero build tooling.</p>
+    <div class="factbar">
+      <span>Runtime · Electron 31</span>
+      <span>UI · Vanilla HTML/CSS/JS</span>
+      <span>Diff · jsdiff</span>
+      <span>Lang · JavaScript</span>
+      <span>Build · none (no bundler)</span>
+      <span>Platform · macOS (local)</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toc">
+    <strong>Contents</strong>
+    <ol>
+      <li><a href="#concept">The concept</a></li>
+      <li><a href="#how">How the pieces fit</a></li>
+      <li><a href="#algo">The diff algorithm</a></li>
+      <li><a href="#folder">Folder compare</a></li>
+      <li><a href="#src">Source layout</a></li>
+      <li><a href="#app">The application</a></li>
+      <li><a href="#design">Design language</a></li>
+      <li><a href="#commands">Commands — run &amp; package</a></li>
+    </ol>
+  </div>
+
+  <!-- 01 -->
+  <h2 id="concept"><span class="n">01</span>The concept</h2>
+  <p class="lead">
+    FileDiff is a <strong>local, single-window diff viewer</strong> — the kind of thing you reach for when you want to see exactly what changed between two files without opening a heavyweight IDE or a web service. It models the experience of tools like Beyond Compare and Araxis Merge, distilled to the one thing they do best: a clean, aligned, color-coded side-by-side view.
+  </p>
+  <div class="grid2">
+    <div class="card accent">
+      <h3>What it does</h3>
+      <ul class="clean">
+        <li><strong>Side-by-side file diff</strong> with line-number gutters and rows that stay aligned — filler rows hold the place of inserted/removed lines so both sides line up.</li>
+        <li><strong>Color-coded changes:</strong> <span class="badge add">inserted</span> <span class="badge del">removed</span> <span class="badge chg">changed</span> — kept muted, never loud.</li>
+        <li><strong>Word-level intraline highlights</strong> mark the exact words that changed within a modified line.</li>
+        <li><strong>Folder compare</strong> walks two directory trees and shows added / removed / modified / identical per file; click a modified file to diff it.</li>
+        <li><strong>Synchronized scrolling</strong>, jump-to-next/previous change, swap sides, reload, and ignore-whitespace.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Why these choices</h3>
+      <ul class="clean">
+        <li><strong>Electron</strong> gives native file dialogs, drag-and-drop, and direct filesystem access in one cross-platform shell.</li>
+        <li><strong>Vanilla JS, no bundler</strong> — the truest expression of "spartan." It boots instantly and has the fewest moving parts to break.</li>
+        <li><strong>jsdiff</strong> is a battle-tested diff engine; <code>diffLines</code> builds the row structure and <code>diffWordsWithSpace</code> drives the intraline marks.</li>
+        <li><strong>Plain CSS + design tokens</strong> keep the visual system consistent with the project's warm-paper aesthetic.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Scope, v1:</strong> "simple diff display to start." Syntax-color tokenization is intentionally deferred — combining per-token coloring with word-level diff marks reliably is fiddly, and the elegance here comes from typography, spacing, and the diff palette. It's the natural Phase 2 enhancement.
+  </div>
+
+  <!-- 02 -->
+  <h2 id="how"><span class="n">02</span>How the pieces fit</h2>
+  <div class="diagram">
+    <div class="arch-row">
+      <div class="node">
+        <div class="t">Renderer</div>
+        <div class="d">index.html · app.js</div>
+      </div>
+      <div class="arrow"><span class="lab">contextBridge IPC</span><span class="ln">⇄</span></div>
+      <div class="node api">
+        <div class="t">Preload</div>
+        <div class="d">window.fileDiff.*</div>
+      </div>
+      <div class="arrow"><span class="lab">ipcMain.handle</span><span class="ln">⇄</span></div>
+      <div class="node">
+        <div class="t">Main process</div>
+        <div class="d">dialogs · fs · compare</div>
+      </div>
+    </div>
+    <div class="arch-down">↓</div>
+    <div class="arch-row base">
+      <div class="node">
+        <div class="t">jsdiff (renderer)</div>
+        <div class="d">diffLines · diffWords</div>
+      </div>
+      <div class="node">
+        <div class="t">Filesystem</div>
+        <div class="d">read files · walk dirs</div>
+      </div>
+    </div>
+  </div>
+  <p>
+    The renderer never touches Node or the filesystem directly. With <code>contextIsolation: true</code> and <code>nodeIntegration: false</code>, the only bridge is a small, explicit API surface exposed by <code>preload.js</code> — <code>openFile</code>, <code>openFolder</code>, <code>readFile</code>, <code>compareFolders</code>, <code>join</code>. Every one of those is an <code>ipcRenderer.invoke</code> answered by a handler in the main process. Diffing itself runs entirely in the renderer, on text the main process already read and validated.
+  </p>
+  <div class="note">
+    File reads are guarded: an <strong>8&nbsp;MB size cap</strong> and a <strong>binary sniff</strong> (a NUL byte in the first 8&nbsp;KB) keep the renderer responsive and surface a friendly message instead of hanging on a huge or binary file.
+  </div>
+
+  <!-- 03 -->
+  <h2 id="algo"><span class="n">03</span>The diff algorithm</h2>
+  <p>The heart of the app lives in <code>renderer/diff-view.js</code>. It turns two strings into two aligned columns of rows in five steps:</p>
+  <ol class="clean">
+    <li><strong>Line diff.</strong> <code>Diff.diffLines(left, right, { ignoreWhitespace })</code> returns ordered chunks, each flagged <code>added</code>, <code>removed</code>, or unchanged.</li>
+    <li><strong>Align into row pairs.</strong> Unchanged → same row on both sides. A pure removal → text on the left, a hatched <em>filler</em> on the right (and vice-versa for an insertion) so line numbers never drift.</li>
+    <li><strong>Detect changes.</strong> A removed chunk immediately followed by an added chunk is treated as a <em>changed</em> block and paired line-for-line.</li>
+    <li><strong>Intraline marks.</strong> For each changed pair, <code>Diff.diffWordsWithSpace(old, new)</code> wraps only the differing words in <code>&lt;mark&gt;</code> — removed words tint the left, added words tint the right.</li>
+    <li><strong>Render &amp; index.</strong> Rows render into both panes; the first row of each maximal change run is recorded so <em>Next/Prev</em> can jump between hunks. A footer tallies inserted / removed / changed / unchanged.</li>
+  </ol>
+
+  <p style="font-size:14.5px;color:var(--ink-soft)">A worked example — the left <code>greet</code> changes signature and the right gains a line:</p>
+  <div class="mini">
+    <div class="mini-head"><div>left/app.js</div><div>right/app.js</div></div>
+    <div class="mini-body">
+      <div class="mini-col">
+        <div class="mini-row chg l"><span class="g">1</span><span class="t">function greet(name<mark></mark>) {</span></div>
+        <div class="mini-row"><span class="g">2</span><span class="t">  return name;</span></div>
+        <div class="mini-row fill"><span class="g"></span><span class="t"> </span></div>
+      </div>
+      <div class="mini-col">
+        <div class="mini-row chg r"><span class="g">1</span><span class="t">function greet(name<mark>, greeting</mark>) {</span></div>
+        <div class="mini-row"><span class="g">2</span><span class="t">  return name;</span></div>
+        <div class="mini-row add"><span class="g">3</span><span class="t">const extra = true;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 -->
+  <h2 id="folder"><span class="n">04</span>Folder compare</h2>
+  <p>The second mode (<code>lib/folder-compare.js</code> + <code>renderer/folder-view.js</code>) walks both directory trees and keys every entry by its <strong>relative path</strong>:</p>
+  <table>
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge add">added</span></td><td>Present only in the right folder.</td></tr>
+      <tr><td><span class="badge del">removed</span></td><td>Present only in the left folder.</td></tr>
+      <tr><td><span class="badge chg">modified</span></td><td>In both, but different — detected by size first, then a <code>SHA-1</code> content hash to rule out false positives.</td></tr>
+      <tr><td><span class="badge">identical</span></td><td>In both, byte-for-byte equal.</td></tr>
+    </tbody>
+  </table>
+  <p>Aggregate counts render in the header, and a click on any <strong>modified</strong> row reads that file pair and hands it to the side-by-side diff view. <code>.git</code>, <code>node_modules</code>, and <code>.DS_Store</code> are skipped while walking.</p>
+
+  <!-- 05 -->
+  <h2 id="src"><span class="n">05</span>Source layout</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Process &amp; shared</h3>
+      <div class="tree"><b>main.js</b>            <i>window · IPC · dialogs · file read</i>
+<b>preload.js</b>         <i>contextBridge → window.fileDiff</i>
+<b>lib/</b>
+  folder-compare.js  <i>walk + compare (pure Node)</i>
+<b>package.json</b>       <i>deps + start/dist scripts</i></div>
+    </div>
+    <div class="card">
+      <h3>Renderer — <code>renderer/</code></h3>
+      <div class="tree"><b>index.html</b>         <i>shell: toolbar · panes · statbar</i>
+<b>styles.css</b>         <i>design tokens + diff washes</i>
+<b>app.js</b>             <i>state · slots · drag-drop · modes</i>
+<b>diff-view.js</b>       <i>align · render · marks · nav · stats</i>
+<b>folder-view.js</b>     <i>tree render + open-on-click</i>
+<b>vendor/diff.js</b>     <i>jsdiff UMD bundle (global Diff)</i></div>
+    </div>
+  </div>
+
+  <!-- 06 -->
+  <h2 id="app"><span class="n">06</span>The application</h2>
+  <h3>Title bar &amp; mode switch</h3>
+  <ul class="clean">
+    <li>A slim warm header with the <strong>FileDiff</strong> wordmark and a pill switch between <strong>Files</strong> and <strong>Folders</strong> modes.</li>
+  </ul>
+  <h3>Toolbar</h3>
+  <ul class="clean">
+    <li><strong>Left</strong> and <strong>Right</strong> slots, each with a <strong>Browse</strong> button and a <strong>drag-and-drop</strong> target that shows the chosen file/folder name.</li>
+    <li><strong>Swap sides</strong>, <strong>Reload</strong>, an <strong>Ignore-WS</strong> toggle, and <strong>↑ / ↓</strong> change navigation.</li>
+  </ul>
+  <h3>Diff panes &amp; stat bar</h3>
+  <ul class="clean">
+    <li>Two synced columns with line-number gutters; row backgrounds encode status and <code>&lt;mark&gt;</code>s encode word changes.</li>
+    <li>A footer reads <code>N inserted · N removed · N changed · N unchanged</code> with matching color chips.</li>
+    <li>Empty state invites you to pick two files; identical files render neutral with all-unchanged stats.</li>
+  </ul>
+
+  <!-- 07 -->
+  <h2 id="design"><span class="n">07</span>Design language</h2>
+  <p>The whole app shares one palette and type system with this document — warm paper, soft lines, a single terracotta accent, serif headings, and mono for line numbers, labels, and stats. The diff washes are deliberately desaturated:</p>
+  <table>
+    <thead><tr><th>Token</th><th>Use</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">--add-bg / --add-ink</td><td>inserted lines &amp; word marks</td><td class="mono">#eaf3ec / #2f6b46</td></tr>
+      <tr><td class="mono">--del-bg / --del-ink</td><td>removed lines &amp; word marks</td><td class="mono">#f7ece9 / #9a3f2f</td></tr>
+      <tr><td class="mono">--chg-bg / --chg-ink</td><td>changed lines</td><td class="mono">#faf3e6 / #8a5a1a</td></tr>
+      <tr><td class="mono">--accent</td><td>brand, dividers, focus</td><td class="mono">#b05a4a</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 08 -->
+  <h2 id="commands"><span class="n">08</span>Commands — run &amp; package</h2>
+  <h3>First run</h3>
+<pre><code><span class="c"># from the project root (file-diff/)</span>
+npm install
+npm start            <span class="c"># launches the Electron app</span></code></pre>
+
+  <h3>Verify (headless screenshots)</h3>
+<pre><code><span class="c"># renders the real renderer offscreen and writes PNGs to samples/</span>
+./node_modules/.bin/electron scripts/screenshot.js
+./node_modules/.bin/electron scripts/screenshot-folder.js</code></pre>
+
+  <h3>Package a .app / .dmg (optional, Phase 2)</h3>
+<pre><code><span class="c"># add electron-builder, then:</span>
+npm run dist         <span class="c"># output: dist/</span></code></pre>
+
+  <div class="note warn">
+    <strong>Roadmap.</strong> Syntax highlighting (per-line, composed under the diff marks), inline (unified) diff toggle, recent-pairs memory, configurable ignore globs for folder compare, and a proper packaged build with an <code>.icns</code> icon.
+  </div>
+
+  <footer>
+    <p>FileDiff — project concept &amp; architecture · generated 2026-06-20. Companion files: <code>README.md</code>, <code>renderer/diff-view.js</code>, <code>lib/folder-compare.js</code>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

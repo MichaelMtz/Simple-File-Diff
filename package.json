@@ -1,0 +1,38 @@
+{
+  "name": "filediff",
+  "version": "1.0.0",
+  "description": "A spartan yet elegant side-by-side file & folder diff app for the desktop.",
+  "main": "main.js",
+  "author": "michaelmtz",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "com.mtzdesigns.filediff",
+    "productName": "FileDiff",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "lib/**/*",
+      "assets/icon.icns",
+      "assets/icon.png",
+      "!assets/icon-options/**",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    }
+  },
+  "dependencies": {
+    "diff": "^5.2.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
